@@ -1,8 +1,8 @@
-import cvzone
+import mediapy
 import cv2
 
 # Initialize the FPS class with an average count of 30 frames for smoothing
-fpsReader = cvzone.FPS(avgCount=30)
+fpsReader = mediapy.FPS(avgCount=30)
 
 # Initialize the webcam and set it to capture
 cap = cv2.VideoCapture(0)

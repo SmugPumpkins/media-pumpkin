@@ -1,5 +1,5 @@
 import cv2
-import cvzone  # Importing the cvzone library
+import mediapy  # Importing the cvzone library
 
 # Initialize the webcam
 cap = cv2.VideoCapture(2)  # Capture video from the third webcam (0-based index)
@@ -10,7 +10,7 @@ while True:
     success, img = cap.read()  # 'success' is a boolean that indicates if the frame was captured successfully, and 'img' contains the frame itself
 
     # Add a rectangle and put text inside it on the image
-    img, bbox = cvzone.putTextRect(
+    img, bbox = mediapy.putTextRect(
         img, "CVZone", (50, 50),  # Image and starting position of the rectangle
         scale=3, thickness=3,  # Font scale and thickness
         colorT=(255, 255, 255), colorR=(255, 0, 255),  # Text color and Rectangle color

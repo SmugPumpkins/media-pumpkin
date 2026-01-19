@@ -1,7 +1,7 @@
-from cvzone.PlotModule import LivePlot
-from cvzone.FaceDetectionModule import FaceDetector
+from mediapy.PlotModule import LivePlot
+from mediapy.FaceDetectionModule import FaceDetector
 import cv2
-import cvzone
+import mediapy
 import math
 
 cap = cv2.VideoCapture(2)
@@ -34,8 +34,8 @@ while True:
             val = center[0]
             # ---- Draw Data  ---- #
             cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
-            cvzone.putTextRect(img, f'{score}%', (x, y - 10))
-            cvzone.cornerRect(img, (x, y, w, h))
+            mediapy.putTextRect(img, f'{score}%', (x, y - 10))
+            mediapy.cornerRect(img, (x, y, w, h))
 
     xSin += 1
     if xSin == 360: xSin = 0

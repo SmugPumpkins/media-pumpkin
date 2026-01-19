@@ -1,4 +1,4 @@
-from cvzone.HandTrackingModule import HandDetector
+from mediapy.HandTrackingModule import HandDetector
 import cv2
 
 # Initialize the webcam to capture video

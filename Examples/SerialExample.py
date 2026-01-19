@@ -1,4 +1,4 @@
-from cvzone.SerialModule import SerialObject
+from mediapy.SerialModule import SerialObject
 import time
 
 mySerial = SerialObject("COM6", 9600, 1)

@@ -1,5 +1,5 @@
 import cv2
-import cvzone
+import mediapy
 
 # Initialize camera capture
 cap = cv2.VideoCapture(2)
@@ -28,7 +28,7 @@ while True:
     imgList = [img, imgGray, imgCanny, imgSmall, imgBig, imgHSV]
 
     # Stack the images together using cvzone's stackImages function
-    stackedImg = cvzone.stackImages(imgList, 3, 0.7)
+    stackedImg = mediapy.stackImages(imgList, 3, 0.7)
 
     # Display the stacked images
     cv2.imshow("stackedImg", stackedImg)

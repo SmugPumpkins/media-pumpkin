@@ -1,3 +1,12 @@
+# Media Py
+
+This is a fork of CVZone. I use MediaPipe for teaching, but CVZone hasn't been maintained in a while, so I am customizing this library to my needs.
+
+The original **CVZone** can still be installed with:
+```
+pip install cvzone
+```
+
 # CVZone
 
 [![Downloads](https://pepy.tech/badge/cvzone)](https://pepy.tech/project/cvzone)

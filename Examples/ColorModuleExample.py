@@ -1,8 +1,8 @@
-import cvzone
+import mediapy
 import cv2
 
 # Create an instance of the ColorFinder class with trackBar set to True.
-myColorFinder = cvzone.ColorFinder(trackBar=True)
+myColorFinder = mediapy.ColorFinder(trackBar=True)
 
 # Initialize the video capture using OpenCV.
 # Using the third camera (index 2). Adjust index if you have multiple cameras.
@@ -27,7 +27,7 @@ while True:
     imgOrange, mask = myColorFinder.update(img, hsvVals)
 
     # Stack the original image, the masked color image, and the binary mask.
-    imgStack = cvzone.stackImages([img, imgOrange, mask], 3, 1)
+    imgStack = mediapy.stackImages([img, imgOrange, mask], 3, 1)
 
     # Show the stacked images.
     cv2.imshow("Image Stack", imgStack)

@@ -1,4 +1,4 @@
-from cvzone.PoseModule import PoseDetector
+from mediapy.PoseModule import PoseDetector
 import cv2
 
 # Initialize the webcam and set it to the third camera (index 2)

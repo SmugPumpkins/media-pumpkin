@@ -1,5 +1,5 @@
-import cvzone
-from cvzone.SelfiSegmentationModule import SelfiSegmentation
+import mediapy
+from mediapy.SelfiSegmentationModule import SelfiSegmentation
 import cv2
 
 # Initialize the webcam. '2' indicates the third camera connected to the computer.
@@ -27,7 +27,7 @@ while True:
     imgOut = segmentor.removeBG(img, imgBg=(255, 0, 255), cutThreshold=0.1)
 
     # Stack the original image and the image with background removed side by side
-    imgStacked = cvzone.stackImages([img, imgOut], cols=2, scale=1)
+    imgStacked = mediapy.stackImages([img, imgOut], cols=2, scale=1)
 
     # Display the stacked images
     cv2.imshow("Image", imgStacked)

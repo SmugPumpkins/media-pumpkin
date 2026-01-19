@@ -1,8 +1,8 @@
-import cvzone
+import mediapy
 import cv2
 import numpy as np
 import time
-from cvzone.FaceDetectionModule import FaceDetector
+from mediapy.FaceDetectionModule import FaceDetector
 
 
 class PID:

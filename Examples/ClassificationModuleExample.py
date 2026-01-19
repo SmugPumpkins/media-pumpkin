@@ -1,4 +1,4 @@
-from cvzone.ClassificationModule import Classifier
+from mediapy.ClassificationModule import Classifier
 import cv2
 
 cap = cv2.VideoCapture(2)  # Initialize video capture

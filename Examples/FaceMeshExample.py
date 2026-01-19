@@ -1,4 +1,4 @@
-from cvzone.FaceMeshModule import FaceMeshDetector
+from mediapy.FaceMeshModule import FaceMeshDetector
 import cv2
 
 # Initialize the webcam

@@ -7,7 +7,7 @@ Website: https://www.computervision.zone/
 import cv2
 import mediapipe as mp
 
-import cvzone
+import mediapy
 
 
 class FaceDetector:
@@ -101,8 +101,8 @@ def main():
 
                 # ---- Draw Data  ---- #
                 cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
-                cvzone.putTextRect(img, f'{score}%', (x, y - 10))
-                cvzone.cornerRect(img, (x, y, w, h))
+                mediapy.putTextRect(img, f'{score}%', (x, y - 10))
+                mediapy.cornerRect(img, (x, y, w, h))
 
         # Display the image in a window named 'Image'
         cv2.imshow("Image", img)

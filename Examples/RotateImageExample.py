@@ -1,5 +1,5 @@
 import cv2
-from cvzone.Utils import rotateImage  # Import rotateImage function from cvzone.Utils
+from mediapy.Utils import rotateImage  # Import rotateImage function from cvzone.Utils
 
 # Initialize the video capture
 cap = cv2.VideoCapture(2)  # Capture video from the third webcam (index starts at 0)

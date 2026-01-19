@@ -1,5 +1,5 @@
 import cv2
-import cvzone  # Importing the cvzone library
+import mediapy  # Importing the cvzone library
 
 # Initialize the webcam
 cap = cv2.VideoCapture(2)  # Capture video from the third webcam (0-based index)
@@ -10,7 +10,7 @@ while True:
     success, img = cap.read()  # 'success' is a boolean that indicates if the frame was captured successfully, and 'img' contains the frame itself
 
     # Add a rectangle with styled corners to the image
-    img = cvzone.cornerRect(
+    img = mediapy.cornerRect(
         img,  # The image to draw on
         (200, 200, 300, 200),  # The position and dimensions of the rectangle (x, y, width, height)
         l=30,  # Length of the corner edges
