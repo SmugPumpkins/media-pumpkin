@@ -1,14 +1,12 @@
-from distutils.core import setup
-
+from setuptools import setup, find_packages
 setup(
-    name='mediapy',
-    packages=['mediapy'],
+    name='media_pumpkin',
+    packages=find_packages(),
     version='0.1',
     license='MIT',
     description='Computer Vision Helping Library',
-    author='Computer Vision Zone',
-    author_email='contact@computervision.zone',
-    url='https://github.com/cvzone/cvzone.git',
+    author='SmugPumpkins',
+    url='https://github.com/SmugPumpkins/media-py',
     keywords=['ComputerVision', 'HandTracking', 'FaceTracking', 'PoseEstimation'],
     install_requires=[
         'opencv-python',

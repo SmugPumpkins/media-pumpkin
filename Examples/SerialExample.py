@@ -1,4 +1,4 @@
-from mediapy.SerialModule import SerialObject
+from media_pumpkin.SerialModule import SerialObject
 import time
 
 mySerial = SerialObject("COM6", 9600, 1)

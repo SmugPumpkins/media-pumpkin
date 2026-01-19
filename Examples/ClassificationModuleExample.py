@@ -1,4 +1,4 @@
-from mediapy.ClassificationModule import Classifier
+from media_pumpkin.ClassificationModule import Classifier
 import cv2
 
 cap = cv2.VideoCapture(2)  # Initialize video capture

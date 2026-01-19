@@ -1,8 +1,8 @@
-import mediapy
+import media_pumpkin
 import cv2
 
 # Initialize the FPS class with an average count of 30 frames for smoothing
-fpsReader = mediapy.FPS(avgCount=30)
+fpsReader = media_pumpkin.FPS(avgCount=30)
 
 # Initialize the webcam and set it to capture
 cap = cv2.VideoCapture(0)

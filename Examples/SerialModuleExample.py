@@ -1,4 +1,4 @@
-from mediapy.SerialModule import SerialObject
+from media_pumpkin.SerialModule import SerialObject
 
 # Initialize the Arduino SerialObject with optional parameters
 # baudRate = 9600, digits = 1, max_retries = 5

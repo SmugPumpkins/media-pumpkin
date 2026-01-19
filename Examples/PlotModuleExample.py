@@ -1,7 +1,7 @@
-from mediapy.PlotModule import LivePlot
-from mediapy.FaceDetectionModule import FaceDetector
+from media_pumpkin.PlotModule import LivePlot
+from media_pumpkin.FaceDetectionModule import FaceDetector
 import cv2
-import mediapy
+import media_pumpkin
 import math
 
 cap = cv2.VideoCapture(2)
@@ -34,8 +34,8 @@ while True:
             val = center[0]
             # ---- Draw Data  ---- #
             cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
-            mediapy.putTextRect(img, f'{score}%', (x, y - 10))
-            mediapy.cornerRect(img, (x, y, w, h))
+            media_pumpkin.putTextRect(img, f'{score}%', (x, y - 10))
+            media_pumpkin.cornerRect(img, (x, y, w, h))
 
     xSin += 1
     if xSin == 360: xSin = 0

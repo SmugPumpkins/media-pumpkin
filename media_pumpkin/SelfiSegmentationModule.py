@@ -2,7 +2,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-import mediapy
+import media_pumpkin
 
 
 class SelfiSegmentation():
@@ -63,7 +63,7 @@ def main():
         imgOut = segmentor.removeBG(img, imgBg=(255, 0, 255), cutThreshold=0.1)
 
         # Stack the original image and the image with background removed side by side
-        imgStacked = mediapy.stackImages([img, imgOut], cols=2, scale=1)
+        imgStacked = media_pumpkin.stackImages([img, imgOut], cols=2, scale=1)
 
         # Display the stacked images
         cv2.imshow("Image", imgStacked)

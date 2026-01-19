@@ -1,5 +1,5 @@
-import mediapy
-from mediapy.FaceDetectionModule import FaceDetector
+import media_pumpkin
+from media_pumpkin.FaceDetectionModule import FaceDetector
 import cv2
 
 # Initialize the webcam
@@ -36,8 +36,8 @@ while True:
 
             # ---- Draw Data  ---- #
             cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
-            mediapy.putTextRect(img, f'{score}%', (x, y - 10))
-            mediapy.cornerRect(img, (x, y, w, h))
+            media_pumpkin.putTextRect(img, f'{score}%', (x, y - 10))
+            media_pumpkin.cornerRect(img, (x, y, w, h))
 
     # Display the image in a window named 'Image'
     cv2.imshow("Image", img)

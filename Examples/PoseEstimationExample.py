@@ -1,4 +1,4 @@
-from mediapy.PoseModule import PoseDetector
+from media_pumpkin.PoseModule import PoseDetector
 import cv2
 
 # Initialize the webcam and set it to the third camera (index 2)

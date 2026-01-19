@@ -1,4 +1,4 @@
-# Media Py
+# Media Pumpkin
 
 This is a fork of CVZone. I use MediaPipe for teaching, but CVZone hasn't been maintained in a while, so I am customizing this library to my needs.
 

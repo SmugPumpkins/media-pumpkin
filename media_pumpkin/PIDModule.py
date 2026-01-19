@@ -1,8 +1,8 @@
-import mediapy
+import media_pumpkin
 import cv2
 import numpy as np
 import time
-from mediapy.FaceDetectionModule import FaceDetector
+from media_pumpkin.FaceDetectionModule import FaceDetector
 
 
 class PID:

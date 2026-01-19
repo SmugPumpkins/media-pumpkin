@@ -6,7 +6,7 @@ Website: https://www.computervision.zone/
 
 import time
 import cv2
-import mediapy
+import media_pumpkin
 
 
 class FPS:
@@ -57,7 +57,7 @@ class FPS:
 
         # Draw FPS on image if img is provided
         if img is not None:
-            mediapy.putTextRect(img, f'FPS: {int(fps)}', pos,
+            media_pumpkin.putTextRect(img, f'FPS: {int(fps)}', pos,
                                scale=scale, thickness=thickness, colorT=textColor,
                                colorR=bgColor, offset=10)
         return fps, img

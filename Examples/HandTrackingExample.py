@@ -1,4 +1,4 @@
-from mediapy.HandTrackingModule import HandDetector
+from media_pumpkin.HandTrackingModule import HandDetector
 import cv2
 
 # Initialize the webcam to capture video

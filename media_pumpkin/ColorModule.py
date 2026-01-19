@@ -8,7 +8,7 @@ Can run as stand alone to find relevant hsv values
 import cv2
 import numpy as np
 
-import mediapy
+import media_pumpkin
 
 
 class ColorFinder:
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         imgOrange, mask = myColorFinder.update(img, hsvVals)
 
         # Stack the original image, the masked color image, and the binary mask.
-        imgStack = mediapy.stackImages([img, imgOrange, mask], 3, 1)
+        imgStack = media_pumpkin.stackImages([img, imgOrange, mask], 3, 1)
 
         # Show the stacked images.
         cv2.imshow("Image Stack", imgStack)

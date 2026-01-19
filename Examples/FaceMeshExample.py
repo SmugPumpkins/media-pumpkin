@@ -1,4 +1,4 @@
-from mediapy.FaceMeshModule import FaceMeshDetector
+from media_pumpkin.FaceMeshModule import FaceMeshDetector
 import cv2
 
 # Initialize the webcam
