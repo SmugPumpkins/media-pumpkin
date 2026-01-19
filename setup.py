@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 setup(
     name='media_pumpkin',
     packages=find_packages(),
-    version='0.1',
+    version='0.1.0',
     license='MIT',
     description='Computer Vision Helping Library',
     author='SmugPumpkins',
@@ -10,9 +10,11 @@ setup(
     keywords=['ComputerVision', 'HandTracking', 'FaceTracking', 'PoseEstimation'],
     install_requires=[
         'opencv-python',
-        'numpy'
+        'numpy',
+        'mediapipe',
+        'protobuf<4',
     ],
-    python_requires='>=3.6',  # Requires any version >= 3.6
+    python_requires='>=3.9,<3.12',  # Requires any version >= 3.6
 
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -20,6 +22,6 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3',  # Specify which pyhton versions that you want to support
+        'Programming Language :: Python :: 3',  # Specify which python versions that you want to support
     ],
 )

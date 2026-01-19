@@ -7,6 +7,10 @@ The original **CVZone** can still be installed with:
 pip install cvzone
 ```
 
+
+Python 3.9–3.11 supported
+
+Python 3.12 not supported (MediaPipe/TensorFlow limitation)
 # CVZone
 
 [![Downloads](https://pepy.tech/badge/cvzone)](https://pepy.tech/project/cvzone)
@@ -389,7 +393,7 @@ maskClassifier = Classifier(f'{path}/keras_model.h5', f'{path}/labels.txt')
 
 while True:
     _, img = cap.read()  # Capture frame-by-frame
-    prediction = maskClassifier.getPrediction(img)
+    prediction = maskClassifier.get_prediction(img)
     print(prediction)  # Print prediction result
     cv2.imshow("Image", img)
     cv2.waitKey(1)  # Wait for a key press

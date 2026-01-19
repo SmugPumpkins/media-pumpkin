@@ -4,7 +4,7 @@ By: Computer Vision Zone
 Website: https://www.computervision.zone/
 """
 
-import cv2
+import cv2 as cv
 import mediapipe as mp
 
 import media_pumpkin
@@ -43,7 +43,7 @@ class FaceDetector:
                  Bounding Box list.
         """
 
-        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        imgRGB = cv.cvtColor(img, cv.COLOR_BGR2RGB)
         self.results = self.faceDetection.process(imgRGB)
         bboxs = []
         if self.results.detections:
@@ -58,10 +58,10 @@ class FaceDetector:
                     bboxInfo = {"id": id, "bbox": bbox, "score": detection.score, "center": (cx, cy)}
                     bboxs.append(bboxInfo)
                     if draw:
-                        img = cv2.rectangle(img, bbox, (255, 0, 255), 2)
+                        img = cv.rectangle(img, bbox, (255, 0, 255), 2)
 
-                        cv2.putText(img, f'{int(detection.score[0] * 100)}%',
-                                    (bbox[0], bbox[1] - 20), cv2.FONT_HERSHEY_PLAIN,
+                        cv.putText(img, f'{int(detection.score[0] * 100)}%',
+                                    (bbox[0], bbox[1] - 20), cv.FONT_HERSHEY_PLAIN,
                                     2, (255, 0, 255), 2)
         return img, bboxs
 
@@ -69,7 +69,7 @@ class FaceDetector:
 def main():
     # Initialize the webcam
     # '2' means the third camera connected to the computer, usually 0 refers to the built-in webcam
-    cap = cv2.VideoCapture(2)
+    cap = cv.VideoCapture(0)
 
     # Initialize the FaceDetector object
     # minDetectionCon: Minimum detection confidence threshold
@@ -100,14 +100,20 @@ def main():
                 score = int(bbox['score'][0] * 100)
 
                 # ---- Draw Data  ---- #
-                cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
+                cv.circle(img, center, 5, (255, 0, 255), cv.FILLED)
                 media_pumpkin.putTextRect(img, f'{score}%', (x, y - 10))
                 media_pumpkin.cornerRect(img, (x, y, w, h))
 
         # Display the image in a window named 'Image'
-        cv2.imshow("Image", img)
+        cv.imshow("Image", img)
         # Wait for 1 millisecond, and keep the window open
-        cv2.waitKey(1)
+        cv.waitKey(1)
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+        if cv.getWindowProperty("Image Stack", cv.WND_PROP_VISIBLE) < 1:
+            break
+    cap.release()
+    cv.destroyAllWindows()
 
 
 if __name__ == "__main__":
