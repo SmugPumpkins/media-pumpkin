@@ -41,6 +41,8 @@ class HandDetector:
 
         self.mpDraw = mp.solutions.drawing_utils
         self.tipIds = [4, 8, 12, 16, 20]
+        self.knuckleIds = [2, 6, 10, 14, 18]
+        self.thumbIds = [1, 2, 3]
         self.fingers = []
         self.lmList = []
 
@@ -127,6 +129,54 @@ class HandDetector:
             # 4 Fingers
             for id in range(1, 5):
                 if myLmList[self.tipIds[id]][1] < myLmList[self.tipIds[id] - 2][1]:
+                    fingers.append(1)
+                else:
+                    fingers.append(0)
+        return fingers
+
+    def angle3D(self, p1, p2):
+        # vector 1 → 2
+        x = p2[0] - p1[0]
+        y = p2[1] - p1[1]
+        z = p2[2] - p1[2]
+        # vector magnitude (length)
+        mag = math.sqrt(x * x + y * y + z * z)
+        # avoid division by zero
+        if mag == 0:
+            return 0, 0, 0
+        # normalized vector (unit length)
+        return x / mag, y / mag, z / mag
+
+    def fingersUpRelative(self, myHand):
+        """
+        Finds how many fingers are open and returns in a list.
+        :return: List of which fingers are up
+        """
+        fingers = []
+        myLmList = myHand["lmList"]
+        if self.results.multi_hand_landmarks:
+            # Thumb
+            dist_threshold = 0.2  # How sensitive it should be for an open vs a closed thumb
+
+            # Get the angle vectors of landmark 1-2 and landmark 2-3
+            angle_a = self.angle3D(myLmList[self.thumbIds[0]], myLmList[self.thumbIds[1]])
+            angle_b = self.angle3D(myLmList[self.thumbIds[1]], myLmList[self.thumbIds[2]])
+
+            # Get the distance between the ends of the two angle vectors
+            thumb_angle_distance = math.dist(angle_a, angle_b)
+
+            # When thumb is open, the distance is less than the threshold
+            if thumb_angle_distance < dist_threshold:
+                fingers.append(1)
+            else:
+                fingers.append(0)
+
+            # 4 Fingers
+            for id in range(1, 5):
+                # Compare the distance between the tip and the wrist to the distance between the knuckle and the wrist
+                tip_distance = math.dist(myLmList[self.tipIds[id]], myLmList[0])
+                knuckle_distance = math.dist(myLmList[self.knuckleIds[id]], myLmList[0])
+                if tip_distance > knuckle_distance:
                     fingers.append(1)
                 else:
                     fingers.append(0)

@@ -3,7 +3,7 @@ import cv2
 
 # Initialize the webcam to capture video
 # The '2' indicates the third camera connected to your computer; '0' would usually refer to the built-in camera
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 
 # Initialize the HandDetector class with the given parameters
 detector = HandDetector(staticMode=False, maxHands=2, modelComplexity=1, detectionCon=0.5, minTrackCon=0.5)
@@ -13,6 +13,7 @@ while True:
     # Capture each frame from the webcam
     # 'success' will be True if the frame is successfully captured, 'img' will contain the frame
     success, img = cap.read()
+    img = cv2.flip(img, 1)
 
     # Find hands in the current frame
     # The 'draw' parameter draws landmarks and hand outlines on the image if set to True
@@ -30,7 +31,9 @@ while True:
 
         # Count the number of fingers up for the first hand
         fingers1 = detector.fingersUp(hand1)
+        fingers_1_relative = detector.fingersUpRelative(hand1)
         print(f'H1 = {fingers1.count(1)}', end=" ")  # Print the count of fingers that are up
+        print(f'H1 = {fingers_1_relative.count(1)}', end=" ")  # Print the count of fingers that are up
 
         # Calculate distance between specific landmarks on the first hand and draw it on the image
         length, info, img = detector.findDistance(lmList1[8][0:2], lmList1[12][0:2], img, color=(255, 0, 255),
