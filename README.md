@@ -291,7 +291,7 @@ while True:
     # Update the FPS counter and draw the FPS on the image
     # fpsReader.update returns the current FPS and the updated image
     fps, img = fpsReader.update(img, pos=(20, 50),
-                                bgColor=(255, 0, 255), textColor=(255, 255, 255),
+                                background_color=(255, 0, 255), text_color=(255, 255, 255),
                                 scale=3, thickness=3)
 
     # Display the image with the FPS counter
