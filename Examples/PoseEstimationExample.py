@@ -5,13 +5,13 @@ import cv2
 cap = cv2.VideoCapture(2)
 
 # Initialize the PoseDetector class with the given parameters
-detector = PoseDetector(staticMode=False,
-                        modelComplexity=1,
-                        smoothLandmarks=True,
-                        enableSegmentation=False,
-                        smoothSegmentation=True,
-                        detectionCon=0.5,
-                        trackCon=0.5)
+detector = PoseDetector(static_mode=False,
+                        model_complexity=1,
+                        smooth_landmarks=True,
+                        enable_segmentation=False,
+                        smooth_segmentation=True,
+                        detection_confidence=0.5,
+                        tracking_confidence=0.5)
 
 # Loop to continuously get frames from the webcam
 while True:
@@ -19,7 +19,7 @@ while True:
     success, img = cap.read()
 
     # Find the human pose in the frame
-    img = detector.findPose(img)
+    img = detector.find_pose(img)
 
     # Find the landmarks, bounding box, and center of the body in the frame
     # Set draw=True to draw the landmarks and bounding box on the image

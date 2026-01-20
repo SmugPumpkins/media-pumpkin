@@ -633,7 +633,7 @@ while True:
     success, img = cap.read()
 
     # Find the human pose in the frame
-    img = detector.findPose(img)
+    img = detector.find_pose(img)
 
     # Find the landmarks, bounding box, and center of the body in the frame
     # Set draw=True to draw the landmarks and bounding box on the image

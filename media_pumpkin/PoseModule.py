@@ -5,7 +5,7 @@ Website: https://www.computervision.zone/
 """
 import math
 
-import cv2
+import cv2 as cv
 import mediapipe as mp
 
 
@@ -14,53 +14,58 @@ class PoseDetector:
     Estimates Pose points of a human body using the mediapipe library.
     """
 
-    def __init__(self, staticMode=False,
-                 modelComplexity=1,
-                 smoothLandmarks=True,
-                 enableSegmentation=False,
-                 smoothSegmentation=True,
-                 detectionCon=0.5,
-                 trackCon=0.5):
+    def __init__(
+        self,
+        static_mode=False,
+        model_complexity=1,
+        smooth_landmarks=True,
+        enable_segmentation=False,
+        smooth_segmentation=True,
+        detection_confidence=0.5,
+        tracking_confidence=0.5
+    ):
         """
-        :param mode: In static mode, detection is done on each image: slower
-        :param upBody: Upper boy only flag
-        :param smooth: Smoothness Flag
-        :param detectionCon: Minimum Detection Confidence Threshold
-        :param trackCon: Minimum Tracking Confidence Threshold
+        :param static_mode: In static mode, detection is done on each image: slower
+        :param model_complexity:
+        :param smooth_landmarks:
+        :param enable_segmentation:
+        :param smooth_segmentation:
+        :param detection_confidence: Minimum Detection Confidence Threshold
+        :param tracking_confidence: Minimum Tracking Confidence Threshold
         """
+        self.results = None
+        self.static_mode = static_mode
+        self.model_complexity = model_complexity
+        self.smooth_landmarks = smooth_landmarks
+        self.enable_segmentation = enable_segmentation
+        self.smooth_segmentation = smooth_segmentation
+        self.detection_confidence = detection_confidence
+        self.tracking_confidence = tracking_confidence
 
-        self.staticMode = staticMode
-        self.modelComplexity = modelComplexity
-        self.smoothLandmarks = smoothLandmarks
-        self.enableSegmentation = enableSegmentation
-        self.smoothSegmentation = smoothSegmentation
-        self.detectionCon = detectionCon
-        self.trackCon = trackCon
+        self.mediapipe_draw = mp.solutions.drawing_utils
+        self.mediapipe_pose = mp.solutions.pose
+        self.pose = self.mediapipe_pose.Pose(static_image_mode=self.static_mode,
+                                             model_complexity=self.model_complexity,
+                                             smooth_landmarks=self.smooth_landmarks,
+                                             enable_segmentation=self.enable_segmentation,
+                                             smooth_segmentation=self.smooth_segmentation,
+                                             min_detection_confidence=self.detection_confidence,
+                                             min_tracking_confidence=self.tracking_confidence)
 
-        self.mpDraw = mp.solutions.drawing_utils
-        self.mpPose = mp.solutions.pose
-        self.pose = self.mpPose.Pose(static_image_mode=self.staticMode,
-                                     model_complexity=self.modelComplexity,
-                                     smooth_landmarks=self.smoothLandmarks,
-                                     enable_segmentation=self.enableSegmentation,
-                                     smooth_segmentation=self.smoothSegmentation,
-                                     min_detection_confidence=self.detectionCon,
-                                     min_tracking_confidence=self.trackCon)
-
-    def findPose(self, img, draw=True):
+    def find_pose(self, image, draw=True):
         """
         Find the pose landmarks in an Image of BGR color space.
-        :param img: Image to find the pose in.
+        :param image: Image to find the pose in.
         :param draw: Flag to draw the output on the image.
         :return: Image with or without drawings
         """
-        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        self.results = self.pose.process(imgRGB)
+        image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        image_rgb = cv.resize(image_rgb, (256, 144))
+        self.results = self.pose.process(image_rgb)
         if self.results.pose_landmarks:
             if draw:
-                self.mpDraw.draw_landmarks(img, self.results.pose_landmarks,
-                                           self.mpPose.POSE_CONNECTIONS)
-        return img
+                self.mediapipe_draw.draw_landmarks(image, self.results.pose_landmarks, self.mediapipe_pose.POSE_CONNECTIONS)
+        return image
 
     def findPosition(self, img, draw=True, bboxWithHands=False):
         self.lmList = []
@@ -89,8 +94,8 @@ class PoseDetector:
             self.bboxInfo = {"bbox": bbox, "center": (cx, cy)}
 
             if draw:
-                cv2.rectangle(img, bbox, (255, 0, 255), 3)
-                cv2.circle(img, (cx, cy), 5, (255, 0, 0), cv2.FILLED)
+                cv.rectangle(img, bbox, (255, 0, 255), 3)
+                cv.circle(img, (cx, cy), 5, (255, 0, 0), cv.FILLED)
 
         return self.lmList, self.bboxInfo
 
@@ -111,10 +116,10 @@ class PoseDetector:
         info = (x1, y1, x2, y2, cx, cy)
 
         if img is not None:
-            cv2.line(img, (x1, y1), (x2, y2), color, max(1, scale // 3))
-            cv2.circle(img, (x1, y1), scale, color, cv2.FILLED)
-            cv2.circle(img, (x2, y2), scale, color, cv2.FILLED)
-            cv2.circle(img, (cx, cy), scale, color, cv2.FILLED)
+            cv.line(img, (x1, y1), (x2, y2), color, max(1, scale // 3))
+            cv.circle(img, (x1, y1), scale, color, cv.FILLED)
+            cv.circle(img, (x2, y2), scale, color, cv.FILLED)
+            cv.circle(img, (cx, cy), scale, color, cv.FILLED)
 
         return length, img, info
 
@@ -142,16 +147,16 @@ class PoseDetector:
 
         # Draw
         if img is not None:
-            cv2.line(img, (x1, y1), (x2, y2), (255, 255, 255), max(1,scale//5))
-            cv2.line(img, (x3, y3), (x2, y2), (255, 255, 255), max(1,scale//5))
-            cv2.circle(img, (x1, y1), scale, color, cv2.FILLED)
-            cv2.circle(img, (x1, y1), scale+5, color, max(1,scale//5))
-            cv2.circle(img, (x2, y2), scale, color, cv2.FILLED)
-            cv2.circle(img, (x2, y2), scale+5, color, max(1,scale//5))
-            cv2.circle(img, (x3, y3), scale, color, cv2.FILLED)
-            cv2.circle(img, (x3, y3), scale+5, color, max(1,scale//5))
-            cv2.putText(img, str(int(angle)), (x2 - 50, y2 + 50),
-                        cv2.FONT_HERSHEY_PLAIN, 2, color, max(1,scale//5))
+            cv.line(img, (x1, y1), (x2, y2), (255, 255, 255), max(1,scale//5))
+            cv.line(img, (x3, y3), (x2, y2), (255, 255, 255), max(1,scale//5))
+            cv.circle(img, (x1, y1), scale, color, cv.FILLED)
+            cv.circle(img, (x1, y1), scale+5, color, max(1,scale//5))
+            cv.circle(img, (x2, y2), scale, color, cv.FILLED)
+            cv.circle(img, (x2, y2), scale+5, color, max(1,scale//5))
+            cv.circle(img, (x3, y3), scale, color, cv.FILLED)
+            cv.circle(img, (x3, y3), scale+5, color, max(1,scale//5))
+            cv.putText(img, str(int(angle)), (x2 - 50, y2 + 50),
+                        cv.FONT_HERSHEY_PLAIN, 2, color, max(1,scale//5))
         return angle, img
 
     def angleCheck(self, myAngle, targetAngle, offset=20):
@@ -159,17 +164,16 @@ class PoseDetector:
 
 
 def main():
-    # Initialize the webcam and set it to the third camera (index 2)
-    cap = cv2.VideoCapture(2)
+    cap = cv.VideoCapture(0)
 
     # Initialize the PoseDetector class with the given parameters
-    detector = PoseDetector(staticMode=False,
-                            modelComplexity=1,
-                            smoothLandmarks=True,
-                            enableSegmentation=False,
-                            smoothSegmentation=True,
-                            detectionCon=0.5,
-                            trackCon=0.5)
+    detector = PoseDetector(static_mode=False,
+                            model_complexity=1,
+                            smooth_landmarks=True,
+                            enable_segmentation=False,
+                            smooth_segmentation=True,
+                            detection_confidence=0.5,
+                            tracking_confidence=0.5)
 
     # Loop to continuously get frames from the webcam
     while True:
@@ -177,8 +181,8 @@ def main():
         success, img = cap.read()
 
         # Find the human pose in the frame
-        img = detector.findPose(img)
-
+        img = detector.find_pose(img)
+        img = cv.flip(img, 1)
         # Find the landmarks, bounding box, and center of the body in the frame
         # Set draw=True to draw the landmarks and bounding box on the image
         lmList, bboxInfo = detector.findPosition(img, draw=True, bboxWithHands=False)
@@ -189,7 +193,7 @@ def main():
             center = bboxInfo["center"]
 
             # Draw a circle at the center of the bounding box
-            cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
+            cv.circle(img, center, 5, (255, 0, 255), cv.FILLED)
 
             # Calculate the distance between landmarks 11 and 15 and draw it on the image
             length, img, info = detector.findDistance(lmList[11][0:2],
@@ -215,10 +219,12 @@ def main():
             print(isCloseAngle50)
 
         # Display the frame in a window
-        cv2.imshow("Image", img)
+        cv.imshow("Image", img)
 
-        # Wait for 1 millisecond between each frame
-        cv2.waitKey(1)
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+        if cv.getWindowProperty("Image", cv.WND_PROP_VISIBLE) < 1:
+            break
 
 if __name__ == "__main__":
     main()
