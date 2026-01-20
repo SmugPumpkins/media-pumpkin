@@ -80,8 +80,7 @@ class ColorFinder:
 
         return image_color, mask
 
-
-if __name__ == "__main__":
+def main():
     # Create an instance of the ColorFinder class with trackBar set to True.
     myColorFinder = ColorFinder(track_bar=True)
 
@@ -95,7 +94,8 @@ if __name__ == "__main__":
     # Custom color values for detecting orange.
     # 'hmin', 'smin', 'vmin' are the minimum values for Hue, Saturation, and Value.
     # 'hmax', 'smax', 'vmax' are the maximum values for Hue, Saturation, and Value.
-    hsv_vals = {'hue_min': 10, 'saturation_min': 55, 'value_min': 215, 'hue_max': 42, 'saturation_max': 255, 'value_max': 255}
+    hsv_vals = {'hue_min': 10, 'saturation_min': 55, 'value_min': 215, 'hue_max': 42, 'saturation_max': 255,
+                'value_max': 255}
 
     # Main loop to continuously get frames from the camera.
     while True:
@@ -119,5 +119,10 @@ if __name__ == "__main__":
             break
         if cv.getWindowProperty("Image Stack", cv.WND_PROP_VISIBLE) < 1:
             break
+        if cv.getWindowProperty("TrackBars", cv.WND_PROP_VISIBLE) < 1:
+            break
     cap.release()
     cv.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()

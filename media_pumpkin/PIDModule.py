@@ -48,14 +48,14 @@ class PID:
 
 def main():
     cap = cv2.VideoCapture(2)
-    detector = FaceDetector(minDetectionCon=0.8)
+    detector = FaceDetector(min_detection_con=0.8)
     # For a 640x480 image center target is 320 and 240
     xPID = PID([1, 0.000000000001, 1], 640 // 2)
     yPID = PID([1, 0.000000000001, 1], 480 // 2, axis=1, limit=[-100, 100])
 
     while True:
         success, img = cap.read()
-        img, bboxs = detector.findFaces(img)
+        img, bboxs = detector.find_faces(img)
         if bboxs:
             x, y, w, h = bboxs[0]["bbox"]
             cx, cy = bboxs[0]["center"]

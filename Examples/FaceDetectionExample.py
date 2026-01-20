@@ -9,7 +9,7 @@ cap = cv2.VideoCapture(2)
 # Initialize the FaceDetector object
 # minDetectionCon: Minimum detection confidence threshold
 # modelSelection: 0 for short-range detection (2 meters), 1 for long-range detection (5 meters)
-detector = FaceDetector(minDetectionCon=0.5, modelSelection=0)
+detector = FaceDetector(min_detection_con=0.5, model_selection=0)
 
 # Run the loop to continually get frames from the webcam
 while True:
@@ -21,7 +21,7 @@ while True:
     # Detect faces in the image
     # img: Updated image
     # bboxs: List of bounding boxes around detected faces
-    img, bboxs = detector.findFaces(img, draw=False)
+    img, bboxs = detector.find_faces(img, draw=False)
 
     # Check if any face is detected
     if bboxs:

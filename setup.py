@@ -11,7 +11,7 @@ setup(
     install_requires=[
         'opencv-python',
         'numpy',
-        'mediapipe',
+        'mediapipe<0.11',
         'protobuf<4',
     ],
     python_requires='>=3.9,<3.12',  # Requires any version >= 3.6

@@ -5,7 +5,7 @@ import media_pumpkin
 import math
 
 cap = cv2.VideoCapture(2)
-detector = FaceDetector(minDetectionCon=0.85, modelSelection=0)
+detector = FaceDetector(min_detection_con=0.85, model_selection=0)
 
 xPlot = LivePlot(w=1200, yLimit=[0, 500], interval=0.01)
 sinPlot = LivePlot(w=1200, yLimit=[-100, 100], interval=0.01)
@@ -19,7 +19,7 @@ while True:
     # Detect faces in the image
     # img: Updated image
     # bboxs: List of bounding boxes around detected faces
-    img, bboxs = detector.findFaces(img, draw=False)
+    img, bboxs = detector.find_faces(img, draw=False)
     val = 0
     # Check if any face is detected
     if bboxs:
