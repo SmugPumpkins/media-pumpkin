@@ -9,6 +9,33 @@ import mediapipe as mp
 import math
 
 
+def find_distance(p1, p2, image=None):
+    """
+    Find the distance between two landmarks based on their
+    index numbers.
+    :param p1: Point1
+    :param p2: Point2
+    :param image: Image to draw on.
+    :return: Distance between the points
+             Image with output drawn
+             Line information
+    """
+
+    x1, y1 = p1
+    x2, y2 = p2
+    cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+    length = math.hypot(x2 - x1, y2 - y1)
+    info = (x1, y1, x2, y2, cx, cy)
+    if image is not None:
+        cv.circle(image, (x1, y1), 15, (255, 0, 255), cv.FILLED)
+        cv.circle(image, (x2, y2), 15, (255, 0, 255), cv.FILLED)
+        cv.line(image, (x1, y1), (x2, y2), (255, 0, 255), 3)
+        cv.circle(image, (cx, cy), 15, (255, 0, 255), cv.FILLED)
+        return length,info, image
+    else:
+        return length, info
+
+
 class FaceMeshDetector:
     """
     Face Mesh Detector to find 468 Landmarks using the mediapipe library.
@@ -22,6 +49,7 @@ class FaceMeshDetector:
         :param min_detection_con: Minimum Detection Confidence Threshold
         :param min_track_con: Minimum Tracking Confidence Threshold
         """
+        self.results = None
         self.static_mode = static_mode
         self.max_faces = max_faces
         self.min_detection_con = min_detection_con
@@ -42,8 +70,9 @@ class FaceMeshDetector:
         :param draw: Flag to draw the output on the image.
         :return: Image with or without drawings
         """
-        self.image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
-        self.results = self.face_mesh.process(self.image_rgb)
+        image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        image_rgb = cv.resize(image_rgb, (256, 144))
+        self.results = self.face_mesh.process(image_rgb)
         faces = []
         if self.results.multi_face_landmarks:
             for face_landmarks in self.results.multi_face_landmarks:
@@ -57,33 +86,6 @@ class FaceMeshDetector:
                     face.append([x, y])
                 faces.append(face)
         return image, faces
-
-    def find_distance(self, p1, p2, image=None):
-        """
-        Find the distance between two landmarks based on their
-        index numbers.
-        :param p1: Point1
-        :param p2: Point2
-        :param image: Image to draw on.
-        :param draw: Flag to draw the output on the image.
-        :return: Distance between the points
-                 Image with output drawn
-                 Line information
-        """
-
-        x1, y1 = p1
-        x2, y2 = p2
-        cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
-        length = math.hypot(x2 - x1, y2 - y1)
-        info = (x1, y1, x2, y2, cx, cy)
-        if image is not None:
-            cv.circle(image, (x1, y1), 15, (255, 0, 255), cv.FILLED)
-            cv.circle(image, (x2, y2), 15, (255, 0, 255), cv.FILLED)
-            cv.line(image, (x1, y1), (x2, y2), (255, 0, 255), 3)
-            cv.circle(image, (cx, cy), 15, (255, 0, 255), cv.FILLED)
-            return length,info, image
-        else:
-            return length, info
 
 
 def main():
@@ -123,7 +125,7 @@ def main():
                 # Calculate the vertical distance between the eye points
                 # left_eye_vertical_distance: Distance between points above and below the left eye
                 # info: Additional information (like coordinates)
-                left_eye_vertical_distance, info = detector.find_distance(left_eye_up_point, left_eye_down_point)
+                left_eye_vertical_distance, info = find_distance(left_eye_up_point, left_eye_down_point)
 
                 # Print the vertical distance for debugging or information
                 print(left_eye_vertical_distance)

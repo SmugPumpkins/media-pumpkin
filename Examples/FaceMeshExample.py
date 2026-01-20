@@ -37,7 +37,7 @@ while True:
             # Calculate the vertical distance between the eye points
             # leftEyeVerticalDistance: Distance between points above and below the left eye
             # info: Additional information (like coordinates)
-            leftEyeVerticalDistance, info = detector.find_distance(leftEyeUpPoint, leftEyeDownPoint)
+            leftEyeVerticalDistance, info = find_distance(leftEyeUpPoint, leftEyeDownPoint)
 
             # Print the vertical distance for debugging or information
             print(leftEyeVerticalDistance)
