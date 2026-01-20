@@ -7,8 +7,8 @@ import math
 cap = cv2.VideoCapture(2)
 detector = FaceDetector(min_detection_con=0.85, model_selection=0)
 
-xPlot = LivePlot(w=1200, yLimit=[0, 500], interval=0.01)
-sinPlot = LivePlot(w=1200, yLimit=[-100, 100], interval=0.01)
+xPlot = LivePlot(width=1200, y_limit=[0, 500], interval=0.01)
+sinPlot = LivePlot(width=1200, y_limit=[-100, 100], interval=0.01)
 xSin=0
 
 
