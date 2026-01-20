@@ -1,4 +1,4 @@
-import cv2
+import cv2 as cv
 import mediapipe as mp
 import numpy as np
 
@@ -24,7 +24,7 @@ class SelfiSegmentation():
         :param cutThreshold: higher = more cut, lower = less cut
         :return:
         """
-        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        imgRGB = cv.cvtColor(img, cv.COLOR_BGR2RGB)
         results = self.selfieSegmentation.process(imgRGB)
         condition = np.stack(
             (results.segmentation_mask,) * 3, axis=-1) > cutThreshold
@@ -40,7 +40,7 @@ class SelfiSegmentation():
 def main():
     # Initialize the webcam. '2' indicates the third camera connected to the computer.
     # '0' usually refers to the built-in camera.
-    cap = cv2.VideoCapture(0)
+    cap = cv.VideoCapture(0)
 
     # Set the frame width to 640 pixels
     cap.set(3, 640)
@@ -55,21 +55,23 @@ def main():
     while True:
         # Capture a single frame
         success, img = cap.read()
-
+        img = cv.flip(img, 1)
         # Use the SelfiSegmentation class to remove the background
         # Replace it with a magenta background (255, 0, 255)
         # imgBG can be a color or an image as well. must be same size as the original if image
         # 'cutThreshold' is the sensitivity of the segmentation.
-        imgOut = segmentor.removeBG(img, imgBg=(255, 0, 255), cutThreshold=0.1)
+        imgOut = segmentor.removeBG(img, imgBg=(255, 0, 255), cutThreshold=0.9)
 
         # Stack the original image and the image with background removed side by side
         imgStacked = media_pumpkin.stackImages([img, imgOut], cols=2, scale=1)
 
         # Display the stacked images
-        cv2.imshow("Image", imgStacked)
+        cv.imshow("Image", imgStacked)
 
         # Check for 'q' key press to break the loop and close the window
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+        if cv.getWindowProperty("Image", cv.WND_PROP_VISIBLE) < 1:
             break
 
 
