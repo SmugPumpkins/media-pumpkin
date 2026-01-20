@@ -474,7 +474,7 @@ while True:
     # Find face mesh in the image
     # img: Updated image with the face mesh if draw=True
     # faces: Detected face information
-    img, faces = detector.findFaceMesh(img, draw=True)
+    img, faces = detector.find_face_mesh(img, draw=True)
 
     # Check if any faces are detected
     if faces:
@@ -489,7 +489,7 @@ while True:
             # Calculate the vertical distance between the eye points
             # leftEyeVerticalDistance: Distance between points above and below the left eye
             # info: Additional information (like coordinates)
-            leftEyeVerticalDistance, info = detector.findDistance(leftEyeUpPoint, leftEyeDownPoint)
+            leftEyeVerticalDistance, info = detector.find_distance(leftEyeUpPoint, leftEyeDownPoint)
 
             # Print the vertical distance for debugging or information
             print(leftEyeVerticalDistance)
@@ -581,8 +581,8 @@ while True:
         print(f'H1 = {fingers1.count(1)}', end=" ")  # Print the count of fingers that are up
 
         # Calculate distance between specific landmarks on the first hand and draw it on the image
-        length, info, img = detector.findDistance(lmList1[8][0:2], lmList1[12][0:2], img, color=(255, 0, 255),
-                                                  scale=10)
+        length, info, img = detector.find_distance(lmList1[8][0:2], lmList1[12][0:2], img, color=(255, 0, 255),
+                                                   scale=10)
 
         # Check if a second hand is detected
         if len(hands) == 2:
@@ -598,8 +598,8 @@ while True:
             print(f'H2 = {fingers2.count(1)}', end=" ")
 
             # Calculate distance between the index fingers of both hands and draw it on the image
-            length, info, img = detector.findDistance(lmList1[8][0:2], lmList2[8][0:2], img, color=(255, 0, 0),
-                                                      scale=10)
+            length, info, img = detector.find_distance(lmList1[8][0:2], lmList2[8][0:2], img, color=(255, 0, 0),
+                                                       scale=10)
 
         print(" ")  # New line for better readability of the printed output
 
@@ -648,11 +648,11 @@ while True:
         cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
 
         # Calculate the distance between landmarks 11 and 15 and draw it on the image
-        length, img, info = detector.findDistance(lmList[11][0:2],
-                                                  lmList[15][0:2],
-                                                  img=img,
-                                                  color=(255, 0, 0),
-                                                  scale=10)
+        length, img, info = detector.find_distance(lmList[11][0:2],
+                                                   lmList[15][0:2],
+                                                   image=img,
+                                                   color=(255, 0, 0),
+                                                   scale=10)
 
         # Calculate the angle between landmarks 11, 13, and 15 and draw it on the image
         angle, img = detector.findAngle(lmList[11][0:2],

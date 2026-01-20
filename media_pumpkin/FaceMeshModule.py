@@ -4,7 +4,7 @@ By: Computer Vision Zone
 Website: https://www.computervision.zone/
 """
 
-import cv2
+import cv2 as cv
 import mediapipe as mp
 import math
 
@@ -15,56 +15,56 @@ class FaceMeshDetector:
     Helps acquire the landmark points in pixel format
     """
 
-    def __init__(self, staticMode=False, maxFaces=2, minDetectionCon=0.5, minTrackCon=0.5):
+    def __init__(self, static_mode=False, max_faces=2, min_detection_con=0.5, min_track_con=0.5):
         """
-        :param staticMode: In static mode, detection is done on each image: slower
-        :param maxFaces: Maximum number of faces to detect
-        :param minDetectionCon: Minimum Detection Confidence Threshold
-        :param minTrackCon: Minimum Tracking Confidence Threshold
+        :param static_mode: In static mode, detection is done on each image: slower
+        :param max_faces: Maximum number of faces to detect
+        :param min_detection_con: Minimum Detection Confidence Threshold
+        :param min_track_con: Minimum Tracking Confidence Threshold
         """
-        self.staticMode = staticMode
-        self.maxFaces = maxFaces
-        self.minDetectionCon = minDetectionCon
-        self.minTrackCon = minTrackCon
+        self.static_mode = static_mode
+        self.max_faces = max_faces
+        self.min_detection_con = min_detection_con
+        self.min_track_con = min_track_con
 
-        self.mpDraw = mp.solutions.drawing_utils
-        self.mpFaceMesh = mp.solutions.face_mesh
-        self.faceMesh = self.mpFaceMesh.FaceMesh(static_image_mode=self.staticMode,
-                                                 max_num_faces=self.maxFaces,
-                                                 min_detection_confidence=self.minDetectionCon,
-                                                 min_tracking_confidence=self.minTrackCon)
-        self.drawSpec = self.mpDraw.DrawingSpec(thickness=1, circle_radius=2)
+        self.mp_draw = mp.solutions.drawing_utils
+        self.mp_face_mesh = mp.solutions.face_mesh
+        self.face_mesh = self.mp_face_mesh.FaceMesh(static_image_mode=self.static_mode,
+                                                    max_num_faces=self.max_faces,
+                                                    min_detection_confidence=self.min_detection_con,
+                                                    min_tracking_confidence=self.min_track_con)
+        self.draw_spec = self.mp_draw.DrawingSpec(thickness=1, circle_radius=2)
 
-    def findFaceMesh(self, img, draw=True):
+    def find_face_mesh(self, image, draw=True):
         """
         Finds face landmarks in BGR Image.
-        :param img: Image to find the face landmarks in.
+        :param image: Image to find the face landmarks in.
         :param draw: Flag to draw the output on the image.
         :return: Image with or without drawings
         """
-        self.imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        self.results = self.faceMesh.process(self.imgRGB)
+        self.image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        self.results = self.face_mesh.process(self.image_rgb)
         faces = []
         if self.results.multi_face_landmarks:
-            for faceLms in self.results.multi_face_landmarks:
+            for face_landmarks in self.results.multi_face_landmarks:
                 if draw:
-                    self.mpDraw.draw_landmarks(img, faceLms, self.mpFaceMesh.FACEMESH_CONTOURS,
-                                               self.drawSpec, self.drawSpec)
+                    self.mp_draw.draw_landmarks(image, face_landmarks, self.mp_face_mesh.FACEMESH_CONTOURS,
+                                                self.draw_spec, self.draw_spec)
                 face = []
-                for id, lm in enumerate(faceLms.landmark):
-                    ih, iw, ic = img.shape
-                    x, y = int(lm.x * iw), int(lm.y * ih)
+                for index, landmark in enumerate(face_landmarks.landmark):
+                    image_height, image_width, image_channels = image.shape
+                    x, y = int(landmark.x * image_width), int(landmark.y * image_height)
                     face.append([x, y])
                 faces.append(face)
-        return img, faces
+        return image, faces
 
-    def findDistance(self,p1, p2, img=None):
+    def find_distance(self, p1, p2, image=None):
         """
         Find the distance between two landmarks based on their
         index numbers.
         :param p1: Point1
         :param p2: Point2
-        :param img: Image to draw on.
+        :param image: Image to draw on.
         :param draw: Flag to draw the output on the image.
         :return: Distance between the points
                  Image with output drawn
@@ -76,12 +76,12 @@ class FaceMeshDetector:
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
         length = math.hypot(x2 - x1, y2 - y1)
         info = (x1, y1, x2, y2, cx, cy)
-        if img is not None:
-            cv2.circle(img, (x1, y1), 15, (255, 0, 255), cv2.FILLED)
-            cv2.circle(img, (x2, y2), 15, (255, 0, 255), cv2.FILLED)
-            cv2.line(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
-            cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
-            return length,info, img
+        if image is not None:
+            cv.circle(image, (x1, y1), 15, (255, 0, 255), cv.FILLED)
+            cv.circle(image, (x2, y2), 15, (255, 0, 255), cv.FILLED)
+            cv.line(image, (x1, y1), (x2, y2), (255, 0, 255), 3)
+            cv.circle(image, (cx, cy), 15, (255, 0, 255), cv.FILLED)
+            return length,info, image
         else:
             return length, info
 
@@ -89,14 +89,14 @@ class FaceMeshDetector:
 def main():
     # Initialize the webcam
     # '2' indicates the third camera connected to the computer, '0' would usually refer to the built-in webcam
-    cap = cv2.VideoCapture(0)
+    cap = cv.VideoCapture(0)
 
     # Initialize FaceMeshDetector object
     # staticMode: If True, the detection happens only once, else every frame
     # maxFaces: Maximum number of faces to detect
     # minDetectionCon: Minimum detection confidence threshold
     # minTrackCon: Minimum tracking confidence threshold
-    detector = FaceMeshDetector(staticMode=False, maxFaces=2, minDetectionCon=0.5, minTrackCon=0.5)
+    detector = FaceMeshDetector(static_mode=False, max_faces=2, min_detection_con=0.5, min_track_con=0.5)
 
     # Start the loop to continually get frames from the webcam
     while True:
@@ -104,35 +104,38 @@ def main():
         # success: Boolean, whether the frame was successfully grabbed
         # img: The current frame
         success, img = cap.read()
-
+        img = cv.flip(img, 1)
         # Find face mesh in the image
         # img: Updated image with the face mesh if draw=True
         # faces: Detected face information
-        img, faces = detector.findFaceMesh(img, draw=True)
+        img, faces = detector.find_face_mesh(img, draw=True)
 
         # Check if any faces are detected
         if faces:
             # Loop through each detected face
             for face in faces:
                 # Get specific points for the eye
-                # leftEyeUpPoint: Point above the left eye
-                # leftEyeDownPoint: Point below the left eye
-                leftEyeUpPoint = face[159]
-                leftEyeDownPoint = face[23]
+                # left_eye_up_point: Point above the left eye
+                # left_eye_down_point: Point below the left eye
+                left_eye_up_point = face[159]
+                left_eye_down_point = face[23]
 
                 # Calculate the vertical distance between the eye points
-                # leftEyeVerticalDistance: Distance between points above and below the left eye
+                # left_eye_vertical_distance: Distance between points above and below the left eye
                 # info: Additional information (like coordinates)
-                leftEyeVerticalDistance, info = detector.findDistance(leftEyeUpPoint, leftEyeDownPoint)
+                left_eye_vertical_distance, info = detector.find_distance(left_eye_up_point, left_eye_down_point)
 
                 # Print the vertical distance for debugging or information
-                print(leftEyeVerticalDistance)
+                print(left_eye_vertical_distance)
 
         # Display the image in a window named 'Image'
-        cv2.imshow("Image", img)
+        cv.imshow("Image", img)
 
         # Wait for 1 millisecond to check for any user input, keeping the window open
-        cv2.waitKey(1)
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+        if cv.getWindowProperty("Image", cv.WND_PROP_VISIBLE) < 1:
+            break
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ cap = cv2.VideoCapture(2)
 # maxFaces: Maximum number of faces to detect
 # minDetectionCon: Minimum detection confidence threshold
 # minTrackCon: Minimum tracking confidence threshold
-detector = FaceMeshDetector(staticMode=False, maxFaces=2, minDetectionCon=0.5, minTrackCon=0.5)
+detector = FaceMeshDetector(static_mode=False, max_faces=2, min_detection_con=0.5, min_track_con=0.5)
 
 # Start the loop to continually get frames from the webcam
 while True:
@@ -22,7 +22,7 @@ while True:
     # Find face mesh in the image
     # img: Updated image with the face mesh if draw=True
     # faces: Detected face information
-    img, faces = detector.findFaceMesh(img, draw=True)
+    img, faces = detector.find_face_mesh(img, draw=True)
 
     # Check if any faces are detected
     if faces:
@@ -37,7 +37,7 @@ while True:
             # Calculate the vertical distance between the eye points
             # leftEyeVerticalDistance: Distance between points above and below the left eye
             # info: Additional information (like coordinates)
-            leftEyeVerticalDistance, info = detector.findDistance(leftEyeUpPoint, leftEyeDownPoint)
+            leftEyeVerticalDistance, info = detector.find_distance(leftEyeUpPoint, leftEyeDownPoint)
 
             # Print the vertical distance for debugging or information
             print(leftEyeVerticalDistance)
