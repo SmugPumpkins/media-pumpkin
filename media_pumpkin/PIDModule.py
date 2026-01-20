@@ -1,75 +1,80 @@
-import media_pumpkin
-import cv2
+import cv2 as cv
 import numpy as np
 import time
-from media_pumpkin.FaceDetectionModule import FaceDetector
+
 
 
 class PID:
-    def __init__(self, pidVals, targetVal, axis=0, limit=None):
-        self.pidVals = pidVals
-        self.targetVal = targetVal
+    def __init__(self, pid_values, target_value, axis=0, limit=None):
+        self.pid_values = pid_values
+        self.target_value = target_value
         self.axis = axis
-        self.pError = 0
+        self.proportional_error = 0
         self.limit = limit
-        self.I = 0
-        self.pTime = 0
+        self.integral = 0
+        self.proportional_time = 0
 
-    def update(self, cVal):
+    def update(self, current_value):
         # Current Value - Target Value
-        t = time.time() - self.pTime
-        error = cVal - self.targetVal
-        P = self.pidVals[0] * error
-        self.I = self.I + (self.pidVals[1] * error * t)
-        D = (self.pidVals[2] * (error - self.pError)) / t
+        t = time.time() - self.proportional_time
+        error = current_value - self.target_value
+        proportion = self.pid_values[0] * error
+        self.integral = self.integral + (self.pid_values[1] * error * t)
+        derivative = (self.pid_values[2] * (error - self.proportional_error)) / t
 
-        result = P + self.I + D
+        result = proportion + self.integral + derivative
 
         if self.limit is not None:
             result = float(np.clip(result, self.limit[0], self.limit[1]))
-        self.pError = error
-        self.ptime = time.time()
+        self.proportional_error = error
+        self.proportional_time = time.time()
 
         return result
 
-    def draw(self, img, cVal):
-        h, w, _ = img.shape
+    def draw(self, image, center):
+        image_height, image_width, _ = image.shape
         if self.axis == 0:
-            cv2.line(img, (self.targetVal, 0), (self.targetVal, h), (255, 0, 255), 1)
-            cv2.line(img, (self.targetVal, cVal[1]), (cVal[0], cVal[1]), (255, 0, 255), 1, 0)
+            cv.line(image, (self.target_value, 0), (self.target_value, image_height), (255, 0, 255), 1)
+            cv.line(image, (self.target_value, center[1]), (center[0], center[1]), (255, 0, 255), 1, 0)
         else:
-            cv2.line(img, (0, self.targetVal), (w, self.targetVal), (255, 0, 255), 1)
-            cv2.line(img, (cVal[0], self.targetVal), (cVal[0], cVal[1]), (255, 0, 255), 1, 0)
+            cv.line(image, (0, self.target_value), (image_width, self.target_value), (255, 0, 255), 1)
+            cv.line(image, (center[0], self.target_value), (center[0], center[1]), (255, 0, 255), 1, 0)
 
-        cv2.circle(img, tuple(cVal), 5, (255, 0, 255), cv2.FILLED)
+        cv.circle(image, tuple(center), 5, (255, 0, 255), cv.FILLED)
 
-        return img
+        return image
 
 
 def main():
-    cap = cv2.VideoCapture(2)
+    from media_pumpkin.FaceDetectionModule import FaceDetector
+    cap = cv.VideoCapture(0)
     detector = FaceDetector(min_detection_con=0.8)
     # For a 640x480 image center target is 320 and 240
-    xPID = PID([1, 0.000000000001, 1], 640 // 2)
-    yPID = PID([1, 0.000000000001, 1], 480 // 2, axis=1, limit=[-100, 100])
+    x_pid = PID([1, 0.000000000001, 1], 640 // 2)
+    y_pid = PID([1, 0.000000000001, 1], 480 // 2, axis=1, limit=[-100, 100])
 
     while True:
         success, img = cap.read()
-        img, bboxs = detector.find_faces(img)
-        if bboxs:
-            x, y, w, h = bboxs[0]["bbox"]
-            cx, cy = bboxs[0]["center"]
-            xVal = int(xPID.update(cx))
-            yVal = int(yPID.update(cy))
+        img = cv.flip(img, 1)
+        img, faces = detector.find_faces(img)
+        if faces:
+            x, y, w, h = faces[0].bounding_box
+            center_x, center_y = faces[0].center
+            x_value = int(x_pid.update(center_x))
+            y_value = int(y_pid.update(center_y))
 
-            xPID.draw(img, [cx, cy])
-            yPID.draw(img, [cx, cy])
+            x_pid.draw(img, [center_x, center_y])
+            y_pid.draw(img, [center_x, center_y])
 
-            cv2.putText(img, f'x:{xVal} , y:{yVal} ', (x, y - 100), cv2.FONT_HERSHEY_PLAIN, 3,
+            cv.putText(img, f'x:{x_value} , y:{y_value} ', (x, y - 100), cv.FONT_HERSHEY_PLAIN, 3,
                         (255, 0, 0), 3)
 
-        cv2.imshow("Image", img)
-        cv2.waitKey(1)
+        cv.imshow("Image", img)
+        # Wait for 1 ms to show this frame, then continue to the next frame
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+        if cv.getWindowProperty("Image", cv.WND_PROP_VISIBLE) < 1:
+            break
 
 
 if __name__ == "__main__":

@@ -10,6 +10,13 @@ import mediapipe as mp
 import media_pumpkin
 
 
+class FaceDetection:
+    def __init__(self, index, bounding_box, score, center):
+        self.index = index
+        self.bounding_box = bounding_box
+        self.score = score
+        self.center = center
+
 class FaceDetector:
     """
     Find faces in realtime using the lightweight model provided in the mediapipe
@@ -37,7 +44,7 @@ class FaceDetector:
 
     def find_faces(self, image, draw=True):
         """
-        Find faces in an image and return the bounding info
+        Find faces in an image and return the bounding_box info
         :param image: Image to find the faces in.
         :param draw: Flag to draw the output on the image.
         :return: Image with or without drawings.
@@ -45,31 +52,44 @@ class FaceDetector:
         """
 
         image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        image_rgb = cv.resize(image_rgb, (256, 144))
         self.results = self.face_detection.process(image_rgb)
-        bounding_box = []
+        face_detections : list[FaceDetection] = []
         if self.results.detections:
-            for marker, detection in enumerate(self.results.detections):
+            for index, detection in enumerate(self.results.detections):
                 if detection.score[0] > self.min_detection_con:
                     bounding_box_data = detection.location_data.relative_bounding_box
                     image_height, image_width, image_channels = image.shape
-                    bounding = int(bounding_box_data.xmin * image_width), int(bounding_box_data.ymin * image_height), \
-                        int(bounding_box_data.width * image_width), int(bounding_box_data.height * image_height)
-                    cx, cy = bounding[0] + (bounding[2] // 2), \
-                             bounding[1] + (bounding[3] // 2)
-                    bounding_box_info = {"id": marker, "bounding": bounding, "score": detection.score, "center": (cx, cy)}
-                    bounding_box.append(bounding_box_info)
+                    bounding_box = (
+                        int(bounding_box_data.xmin * image_width),
+                        int(bounding_box_data.ymin * image_height),
+                        int(bounding_box_data.width * image_width),
+                        int(bounding_box_data.height * image_height)
+                    )
+                    center_x, center_y = (
+                        bounding_box[0] + (bounding_box[2] // 2),
+                        bounding_box[1] + (bounding_box[3] // 2)
+                    )
+                    detected_face : FaceDetection = FaceDetection(index, bounding_box, detection.score, (center_x, center_y))
+                    face_detections.append(detected_face)
                     if draw:
-                        image = cv.rectangle(image, bounding, (255, 0, 255), 2)
+                        image = cv.rectangle(image, bounding_box, (255, 0, 255), 2)
 
-                        cv.putText(image, f'{int(detection.score[0] * 100)}%',
-                                   (bounding[0], bounding[1] - 20), cv.FONT_HERSHEY_PLAIN,
-                                   2, (255, 0, 255), 2)
-        return image, bounding_box
+                        cv.putText(
+                            image,
+                            f'{int(detection.score[0] * 100)}%',
+                            (bounding_box[0], bounding_box[1] - 20),
+                            cv.FONT_HERSHEY_PLAIN,
+                            2,
+                            (255, 0, 255),
+                            2
+                        )
+
+        return image, face_detections
 
 
 def main():
     # Initialize the webcam
-    # '2' means the third camera connected to the computer, usually 0 refers to the built-in webcam
     cap = cv.VideoCapture(0)
 
     # Initialize the FaceDetector object
@@ -88,19 +108,19 @@ def main():
 
         # Detect faces in the image
         # img: Updated image
-        # bounding_boxes: List of bounding boxes around detected faces
-        img, bounding_boxes = detector.find_faces(img, draw=False)
+        # faces: List of bounding boxes around detected faces
+        img, faces = detector.find_faces(img, draw=False)
 
         # Check if any face is detected
-        if bounding_boxes:
+        if faces:
             # Loop through each bounding box
-            for bbox in bounding_boxes:
-                # bbox contains 'id', 'bbox', 'score', 'center'
+            for bounding_box in faces:
+                # bounding_box contains 'id', 'bounding_box', 'score', 'center'
 
                 # ---- Get Data  ---- #
-                center = bbox["center"]
-                x, y, w, h = bbox['bounding']
-                score = int(bbox['score'][0] * 100)
+                center = bounding_box.center
+                x, y, w, h = bounding_box.bounding_box
+                score = int(bounding_box.score[0] * 100)
 
                 # ---- Draw Data  ---- #
                 cv.circle(img, center, 5, (255, 0, 255), cv.FILLED)
