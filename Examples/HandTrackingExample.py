@@ -6,7 +6,7 @@ import cv2
 cap = cv2.VideoCapture(0)
 
 # Initialize the HandDetector class with the given parameters
-detector = HandDetector(staticMode=False, maxHands=2, modelComplexity=1, detectionCon=0.5, minTrackCon=0.5)
+detector = HandDetector(static_mode=False, max_hands=2, model_complexity=1, detection_con=0.5, min_track_con=0.5)
 
 # Continuously get frames from the webcam
 while True:
@@ -18,7 +18,7 @@ while True:
     # Find hands in the current frame
     # The 'draw' parameter draws landmarks and hand outlines on the image if set to True
     # The 'flipType' parameter flips the image, making it easier for some detections
-    hands, img = detector.findHands(img, draw=True, flipType=True)
+    hands, img = detector.find_hands(img, flip_side=True)
 
     # Check if any hands are detected
     if hands:
@@ -30,14 +30,14 @@ while True:
         handType1 = hand1["type"]  # Type of the first hand ("Left" or "Right")
 
         # Count the number of fingers up for the first hand
-        fingers1 = detector.fingersUp(hand1)
-        fingers_1_relative = detector.fingersUpRelative(hand1)
+        fingers1 = detector.fingers_up_absolute(hand1)
+        fingers_1_relative = detector.fingers_up(hand1)
         print(f'H1 = {fingers1.count(1)}', end=" ")  # Print the count of fingers that are up
         print(f'H1 = {fingers_1_relative.count(1)}', end=" ")  # Print the count of fingers that are up
 
         # Calculate distance between specific landmarks on the first hand and draw it on the image
-        length, info, img = detector.findDistance(lmList1[8][0:2], lmList1[12][0:2], img, color=(255, 0, 255),
-                                                  scale=10)
+        length, info, img = find_distance(lmList1[8][0:2], lmList1[12][0:2], img, color=(255, 0, 255),
+                                                   scale=10)
 
         # Check if a second hand is detected
         if len(hands) == 2:
@@ -49,12 +49,12 @@ while True:
             handType2 = hand2["type"]
 
             # Count the number of fingers up for the second hand
-            fingers2 = detector.fingersUp(hand2)
+            fingers2 = detector.fingers_up_absolute(hand2)
             print(f'H2 = {fingers2.count(1)}', end=" ")
 
             # Calculate distance between the index fingers of both hands and draw it on the image
-            length, info, img = detector.findDistance(lmList1[8][0:2], lmList2[8][0:2], img, color=(255, 0, 0),
-                                                      scale=10)
+            length, info, img = find_distance(lmList1[8][0:2], lmList2[8][0:2], img, color=(255, 0, 0),
+                                                       scale=10)
 
         print(" ")  # New line for better readability of the printed output
 
