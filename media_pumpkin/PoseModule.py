@@ -8,6 +8,8 @@ import math
 import cv2 as cv
 import mediapipe as mp
 
+import media_pumpkin
+
 
 class PoseDetector:
     """
@@ -33,6 +35,7 @@ class PoseDetector:
         :param detection_confidence: Minimum Detection Confidence Threshold
         :param tracking_confidence: Minimum Tracking Confidence Threshold
         """
+        self.landmarks = None
         self.results = None
         self.static_mode = static_mode
         self.model_complexity = model_complexity
@@ -67,37 +70,38 @@ class PoseDetector:
                 self.mediapipe_draw.draw_landmarks(image, self.results.pose_landmarks, self.mediapipe_pose.POSE_CONNECTIONS)
         return image
 
-    def findPosition(self, img, draw=True, bboxWithHands=False):
-        self.lmList = []
-        self.bboxInfo = {}
+    def find_position(self, image, draw=True, bounding_box_with_hands=False):
+        self.landmarks = []
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
-                h, w, c = img.shape
+                h, w, c = image.shape
                 cx, cy, cz = int(lm.x * w), int(lm.y * h), int(lm.z * w)
-                self.lmList.append([cx, cy, cz])
+                self.landmarks.append([cx, cy, cz])
 
             # Bounding Box
-            ad = abs(self.lmList[12][0] - self.lmList[11][0]) // 2
-            if bboxWithHands:
-                x1 = self.lmList[16][0] - ad
-                x2 = self.lmList[15][0] + ad
+            ad = abs(self.landmarks[12][0] - self.landmarks[11][0]) // 2
+            if bounding_box_with_hands:
+                x1 = self.landmarks[16][0] - ad
+                x2 = self.landmarks[15][0] + ad
             else:
-                x1 = self.lmList[12][0] - ad
-                x2 = self.lmList[11][0] + ad
+                x1 = self.landmarks[12][0] - ad
+                x2 = self.landmarks[11][0] + ad
 
-            y2 = self.lmList[29][1] + ad
-            y1 = self.lmList[1][1] - ad
+            y2 = self.landmarks[29][1] + ad
+            y1 = self.landmarks[1][1] - ad
             bbox = (x1, y1, x2 - x1, y2 - y1)
             cx, cy = bbox[0] + (bbox[2] // 2), \
                      bbox[1] + bbox[3] // 2
+            bboxInfo = bbox
 
-            self.bboxInfo = {"bbox": bbox, "center": (cx, cy)}
+            # bboxInfo : media_pumpkin.BoundingBox = media_pumpkin.BoundingBox(bbox, (cx, cy))
 
             if draw:
-                cv.rectangle(img, bbox, (255, 0, 255), 3)
-                cv.circle(img, (cx, cy), 5, (255, 0, 0), cv.FILLED)
+                cv.rectangle(image, bbox, (255, 0, 255), 3)
+                cv.circle(image, (cx, cy), 5, (255, 0, 0), cv.FILLED)
 
-        return self.lmList, self.bboxInfo
+            return self.landmarks, bboxInfo
+        return None
 
     def findDistance(self, p1, p2, img=None, color=(255, 0, 255), scale=5):
         """
@@ -185,12 +189,12 @@ def main():
         img = cv.flip(img, 1)
         # Find the landmarks, bounding box, and center of the body in the frame
         # Set draw=True to draw the landmarks and bounding box on the image
-        lmList, bboxInfo = detector.findPosition(img, draw=True, bboxWithHands=False)
+        lmList, bboxInfo = detector.find_position(img, draw=True, bounding_box_with_hands=False)
 
         # Check if any body landmarks are detected
         if lmList:
             # Get the center of the bounding box around the body
-            center = bboxInfo["center"]
+            center = bboxInfo.center
 
             # Draw a circle at the center of the bounding box
             cv.circle(img, center, 5, (255, 0, 255), cv.FILLED)

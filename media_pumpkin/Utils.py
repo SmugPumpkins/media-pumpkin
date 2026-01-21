@@ -6,8 +6,53 @@ Website: https://www.computervision.zone/
 
 import copy
 import urllib.request
+
 import cv2
+import cv2 as cv
 import numpy as np
+from typing import Tuple
+
+from enum import Enum, auto
+
+class HAlign(Enum):
+    LEFT = auto()
+    CENTER = auto()
+    RIGHT = auto()
+
+class VAlign(Enum):
+    TOP = auto()
+    MIDDLE = auto()
+    BOTTOM = auto()
+
+
+
+class BoundingBox:
+    def __init__(self, top_left_corner : Tuple[int, int], bottom_right_corner : Tuple[int, int]):
+        x, y = top_left_corner
+        x2, y2 = bottom_right_corner
+        w = abs(x2 - x)
+        h = abs(y2 - y)
+        # Integer pixel center of the bounding box
+        self.center = (
+            (x + x2) // 2,
+            (y + y2) // 2
+        )
+        self.box = (x, y, w, h)
+        # Dimensions in pixels
+        self.width = w
+        self.height = h
+        self.size = (w, h)
+        self.origin = (x, y)
+        self.opposite = (x2, y2)
+
+    def draw(self, image, color=(0,127,0), thickness=2):
+        cv.rectangle(
+            image,
+            self.origin,
+            self.opposite,
+            color,
+            thickness
+        )
 
 
 def stackImages(_imgList, cols, scale):
@@ -34,11 +79,11 @@ def stackImages(_imgList, cols, scale):
 
     # resize the images to be the same as the first image and apply scaling
     for i in range(cols * rows):
-        imgList[i] = cv2.resize(imgList[i], (width1, height1), interpolation=cv2.INTER_AREA)
-        imgList[i] = cv2.resize(imgList[i], (0, 0), None, scale, scale)
+        imgList[i] = cv.resize(imgList[i], (width1, height1), interpolation=cv.INTER_AREA)
+        imgList[i] = cv.resize(imgList[i], (0, 0), None, scale, scale)
 
         if len(imgList[i].shape) == 2:  # Convert grayscale to color if necessary
-            imgList[i] = cv2.cvtColor(imgList[i], cv2.COLOR_GRAY2BGR)
+            imgList[i] = cv.cvtColor(imgList[i], cv.COLOR_GRAY2BGR)
 
     # put the images in a board
     hor = [imgBlank] * rows
@@ -66,26 +111,26 @@ def cornerRect(img, bbox, l=30, t=5, rt=1,
     x, y, w, h = bbox
     x1, y1 = x + w, y + h
     if rt != 0:
-        cv2.rectangle(img, bbox, colorR, rt)
+        cv.rectangle(img, bbox, colorR, rt)
     # Top Left  x,y
-    cv2.line(img, (x, y), (x + l, y), colorC, t)
-    cv2.line(img, (x, y), (x, y + l), colorC, t)
+    cv.line(img, (x, y), (x + l, y), colorC, t)
+    cv.line(img, (x, y), (x, y + l), colorC, t)
     # Top Right  x1,y
-    cv2.line(img, (x1, y), (x1 - l, y), colorC, t)
-    cv2.line(img, (x1, y), (x1, y + l), colorC, t)
+    cv.line(img, (x1, y), (x1 - l, y), colorC, t)
+    cv.line(img, (x1, y), (x1, y + l), colorC, t)
     # Bottom Left  x,y1
-    cv2.line(img, (x, y1), (x + l, y1), colorC, t)
-    cv2.line(img, (x, y1), (x, y1 - l), colorC, t)
+    cv.line(img, (x, y1), (x + l, y1), colorC, t)
+    cv.line(img, (x, y1), (x, y1 - l), colorC, t)
     # Bottom Right  x1,y1
-    cv2.line(img, (x1, y1), (x1 - l, y1), colorC, t)
-    cv2.line(img, (x1, y1), (x1, y1 - l), colorC, t)
+    cv.line(img, (x1, y1), (x1 - l, y1), colorC, t)
+    cv.line(img, (x1, y1), (x1, y1 - l), colorC, t)
 
     return img
 
 
 def findContours(img, imgPre, minArea=1000, maxArea=float('inf'), sort=True,
                  filter=None, drawCon=True, c=(255, 0, 0), ct=(255, 0, 255),
-                 retrType=cv2.RETR_EXTERNAL, approxType=cv2.CHAIN_APPROX_NONE):
+                 retrType=cv.RETR_EXTERNAL, approxType=cv.CHAIN_APPROX_NONE):
     """
     Finds Contours in an image.
     Sorts them based on area
@@ -102,29 +147,29 @@ def findContours(img, imgPre, minArea=1000, maxArea=float('inf'), sort=True,
     :param drawCon: Draw contours boolean.
     :param c: Color to draw the contours.
     :param ct: Color for Text
-    :param retrType: Retrieval type for cv2.findContours (default is cv2.RETR_EXTERNAL).
-    :param approxType: Approximation type for cv2.findContours (default is cv2.CHAIN_APPROX_NONE).
+    :param retrType: Retrieval type for cv.findContours (default is cv.RETR_EXTERNAL).
+    :param approxType: Approximation type for cv.findContours (default is cv.CHAIN_APPROX_NONE).
 
     :return: Found contours with [contours, Area, BoundingBox, Center].
     """
     conFound = []
     imgContours = img.copy()
-    contours, hierarchy = cv2.findContours(imgPre, retrType, approxType)
+    contours, hierarchy = cv.findContours(imgPre, retrType, approxType)
 
     for cnt in contours:
-        area = cv2.contourArea(cnt)
+        area = cv.contourArea(cnt)
         if minArea < area < maxArea:
-            peri = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
+            peri = cv.arcLength(cnt, True)
+            approx = cv.approxPolyDP(cnt, 0.02 * peri, True)
 
             if filter is None or len(approx) in filter:
                 if drawCon:
-                    cv2.drawContours(imgContours, cnt, -1, c, 3)
-                    x, y, w, h = cv2.boundingRect(approx)
-                    cv2.putText(imgContours, str(len(approx)), (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, ct, 2)
+                    cv.drawContours(imgContours, cnt, -1, c, 3)
+                    x, y, w, h = cv.boundingRect(approx)
+                    cv.putText(imgContours, str(len(approx)), (x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, ct, 2)
                 cx, cy = x + (w // 2), y + (h // 2)
-                cv2.rectangle(imgContours, (x, y), (x + w, y + h), c, 2)
-                cv2.circle(imgContours, (x + (w // 2), y + (h // 2)), 5, c, cv2.FILLED)
+                cv.rectangle(imgContours, (x, y), (x + w, y + h), c, 2)
+                cv.circle(imgContours, (x + (w // 2), y + (h // 2)), 5, c, cv.FILLED)
                 conFound.append({"cnt": cnt, "area": area, "bbox": [x, y, w, h], "center": [cx, cy]})
 
     if sort:
@@ -198,7 +243,7 @@ def rotateImage(imgInput, angle, scale=1, keepSize=False):
     center = (w / 2, h / 2)
 
     # Calculate the rotation matrix
-    rotate_matrix = cv2.getRotationMatrix2D(center=center, angle=angle, scale=scale)
+    rotate_matrix = cv.getRotationMatrix2D(center=center, angle=angle, scale=scale)
 
     if keepSize:
         new_w = w
@@ -216,13 +261,12 @@ def rotateImage(imgInput, angle, scale=1, keepSize=False):
         rotate_matrix[1, 2] += new_h / 2 - center[1]
 
     # Perform the actual rotation and return the image
-    imgOutput = cv2.warpAffine(src=imgInput, M=rotate_matrix, dsize=(new_w, new_h))
+    imgOutput = cv.warpAffine(src=imgInput, M=rotate_matrix, dsize=(new_w, new_h))
 
     return imgOutput
 
-
 def putTextRect(img, text, pos, scale=3, thickness=3, colorT=(255, 255, 255),
-                colorR=(255, 0, 255), font=cv2.FONT_HERSHEY_PLAIN,
+                colorR=(255, 0, 255), font=cv.FONT_HERSHEY_PLAIN,
                 offset=10, border=None, colorB=(0, 255, 0)):
     """
     Creates Text with Rectangle Background
@@ -233,23 +277,128 @@ def putTextRect(img, text, pos, scale=3, thickness=3, colorT=(255, 255, 255),
     :param thickness: Thickness of the text
     :param colorT: Color of the Text
     :param colorR: Color of the Rectangle
-    :param font: Font used. Must be cv2.FONT....
+    :param font: Font used. Must be cv.FONT....
     :param offset: Clearance around the text
     :param border: Outline around the rect
     :param colorB: Color of the outline
     :return: image, rect (x1,y1,x2,y2)
     """
     ox, oy = pos
-    (w, h), _ = cv2.getTextSize(text, font, scale, thickness)
+    (w, h), _ = cv.getTextSize(text, font, scale, thickness)
 
     x1, y1, x2, y2 = ox - offset, oy + offset, ox + w + offset, oy - h - offset
 
-    cv2.rectangle(img, (x1, y1), (x2, y2), colorR, cv2.FILLED)
+    cv.rectangle(img, (x1, y1), (x2, y2), colorR, cv.FILLED)
     if border is not None:
-        cv2.rectangle(img, (x1, y1), (x2, y2), colorB, border)
-    cv2.putText(img, text, (ox, oy), font, scale, colorT, thickness)
+        cv.rectangle(img, (x1, y1), (x2, y2), colorB, border)
+    cv.putText(img, text, (ox, oy), font, scale, colorT, thickness)
 
     return img, [x1, y2, x2, y1]
+
+
+def align_top(text, font, font_scale, thickness):
+    (text_width, text_height), baseline = cv2.getTextSize(text, font, font_scale, thickness)
+    return 20 + baseline
+def align_middle(text, font, font_scale, thickness):
+    (text_width, text_height), baseline = cv2.getTextSize(text, font, font_scale, thickness)
+    center_y = - (text_height // 2)
+    return center_y
+def align_bottom(text, font, font_scale, thickness):
+    (text_width, text_height), baseline = cv2.getTextSize(text, font, font_scale, thickness)
+    return -(text_height + 20)
+def justify_right(text, font, font_scale, thickness):
+    (text_width, text_height), baseline = cv2.getTextSize(text, font, font_scale, thickness)
+    return 20
+def justify_left(text, font, font_scale, thickness):
+    (text_width, text_height), baseline = cv2.getTextSize(text, font, font_scale, thickness)
+    return -(text_width + 20)
+def justify_center(text, font, font_scale, thickness):
+    (text_width, text_height), baseline = cv2.getTextSize(text, font, font_scale, thickness)
+    center_x = - (text_width // 2)
+    return center_x
+
+def measure_text_block(lines, font, font_scale, thickness, margin=20):
+    sizes = [cv.getTextSize(t, font, font_scale, thickness) for t in lines]
+
+    widths  = [w for (w, h), _ in sizes]
+    heights = [h for (w, h), _ in sizes]
+    baselines = [b for (_, _), b in sizes]
+
+    block_width  = max(widths)
+    block_height = sum(heights) + sum(baselines) + margin * (len(lines) - 1)
+
+    return block_width, block_height, sizes
+
+
+def block_x_offset(block_width, align: HAlign, margin=15):
+    match align:
+        case HAlign.LEFT:
+            return margin
+        case HAlign.CENTER:
+            return -block_width // 2
+        case HAlign.RIGHT:
+            return -(block_width + margin)
+
+
+def block_y_offset(block_height, align: VAlign, margin=15):
+    match align:
+        case VAlign.TOP:
+            return margin
+        case VAlign.MIDDLE:
+            return -block_height // 2
+        case VAlign.BOTTOM:
+            return -(block_height + margin)
+
+
+
+def stack_text(
+    image,
+    lines,
+    origin,
+    font,
+    font_scale,
+    thickness,
+    color,
+    h_align: HAlign = HAlign.LEFT,
+    v_align: VAlign = VAlign.TOP,
+    margin=5
+):
+    block_w, block_h, sizes = measure_text_block(
+        lines, font, font_scale, thickness, margin
+    )
+
+    ox = origin[0] + block_x_offset(block_w, h_align)
+    oy = origin[1] + block_y_offset(block_h, v_align)
+
+    # baseline for first line (inside top margin)
+    first_h = sizes[0][0][1]
+    y_cursor = oy + first_h
+
+    for text, ((w, h), baseline) in zip(lines, sizes):
+
+        # consistent justification for all lines
+        match h_align:
+            case HAlign.LEFT:
+                x = ox
+            case HAlign.CENTER:
+                x = ox + (block_w - w) // 2
+            case HAlign.RIGHT:
+                x = ox + (block_w - w)
+
+        cv.putText(
+            image,
+            text,
+            (x, y_cursor),
+            font,
+            font_scale,
+            color,
+            thickness,
+            cv.LINE_AA
+        )
+
+        # move DOWN for next line
+        y_cursor += h + baseline + margin
+
 
 
 def downloadImageFromUrl(url, keepTransparency=False):
@@ -268,15 +417,15 @@ def downloadImageFromUrl(url, keepTransparency=False):
 
     # Decode the image data
     if keepTransparency:
-        image = cv2.imdecode(image_data, cv2.IMREAD_UNCHANGED)
+        image = cv.imdecode(image_data, cv.IMREAD_UNCHANGED)
     else:
-        image = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
+        image = cv.imdecode(image_data, cv.IMREAD_COLOR)
 
     return image
 
 
 def main():
-    cap = cv2.VideoCapture(2)
+    cap = cv.VideoCapture(2)
 
     # ------ downloadImageFromUrl ------#
     imgPNG = downloadImageFromUrl(
@@ -293,7 +442,7 @@ def main():
         img, bbox = putTextRect(img, "CVZone", (50, 50),
                                 scale=3, thickness=3,
                                 colorT=(255, 255, 255), colorR=(255, 0, 255),
-                                font=cv2.FONT_HERSHEY_PLAIN, offset=10,
+                                font=cv.FONT_HERSHEY_PLAIN, offset=10,
                                 border=5, colorB=(0, 255, 0))
         # ------ cornerRect ------- #
         img = cornerRect(img, (200, 200, 300, 200),
@@ -303,33 +452,33 @@ def main():
         # ------ rotateImage ------- #
         imgRotated60 = rotateImage(img, 60, scale=1, keepSize=False)
         imgRotated60KeepSize = rotateImage(img, 60, scale=1, keepSize=True)
-        cv2.imshow("imgRotated60", imgRotated60)
-        cv2.imshow("imgRotated60KeepSize", imgRotated60KeepSize)
+        cv.imshow("imgRotated60", imgRotated60)
+        cv.imshow("imgRotated60KeepSize", imgRotated60KeepSize)
 
         # ------ overlayPNG ------- #
         imgOverlay = overlayPNG(img, imgPNG, pos=[-30, 100])
-        cv2.imshow("imgOverlay", imgOverlay)
+        cv.imshow("imgOverlay", imgOverlay)
 
         # ------ findContours ------- #
-        imgCanny = cv2.Canny(imgShapes, 50, 150)
-        imgDilated = cv2.dilate(imgCanny, np.ones((5, 5), np.uint8), iterations=1)
+        imgCanny = cv.Canny(imgShapes, 50, 150)
+        imgDilated = cv.dilate(imgCanny, np.ones((5, 5), np.uint8), iterations=1)
         imgContours, conFound = findContours(imgShapes, imgDilated, minArea=1000, sort=True,
                                              filter=None, drawCon=True, c=(255, 0, 0), ct=(255, 0, 255),
-                                             retrType=cv2.RETR_EXTERNAL, approxType=cv2.CHAIN_APPROX_NONE)
+                                             retrType=cv.RETR_EXTERNAL, approxType=cv.CHAIN_APPROX_NONE)
         imgContoursFiltered, conFoundFiltered = findContours(imgShapes, imgDilated, minArea=1000, sort=True,
                                                              filter=[3, 4], drawCon=True, c=(255, 0, 0),
                                                              ct=(255, 0, 255),
-                                                             retrType=cv2.RETR_EXTERNAL,
-                                                             approxType=cv2.CHAIN_APPROX_NONE)
-        cv2.imshow("imgContours", imgContours)
-        cv2.imshow("imgContoursFiltered", imgContoursFiltered)
+                                                             retrType=cv.RETR_EXTERNAL,
+                                                             approxType=cv.CHAIN_APPROX_NONE)
+        cv.imshow("imgContours", imgContours)
+        cv.imshow("imgContoursFiltered", imgContoursFiltered)
 
         # ------ stackImages ------- #
-        imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        imgGray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         imgList = [img, imgGray]
         imgStacked = stackImages(imgList, 2, 0.8)
-        cv2.imshow("stackedImg", imgStacked)
-        cv2.waitKey(1)
+        cv.imshow("stackedImg", imgStacked)
+        cv.waitKey(1)
 
 
 if __name__ == "__main__":

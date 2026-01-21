@@ -11,11 +11,11 @@ import media_pumpkin
 
 
 class FaceDetection:
-    def __init__(self, index, bounding_box, score, center):
+    def __init__(self, index, top_right, bottom_left, score):
         self.index = index
-        self.bounding_box = bounding_box
+        self.box : media_pumpkin.BoundingBox = media_pumpkin.BoundingBox(top_right, bottom_left)
         self.score = score
-        self.center = center
+        self.center = self.box.center
 
 class FaceDetector:
     """
@@ -60,25 +60,23 @@ class FaceDetector:
                 if detection.score[0] > self.min_detection_con:
                     bounding_box_data = detection.location_data.relative_bounding_box
                     image_height, image_width, image_channels = image.shape
-                    bounding_box = (
-                        int(bounding_box_data.xmin * image_width),
-                        int(bounding_box_data.ymin * image_height),
-                        int(bounding_box_data.width * image_width),
-                        int(bounding_box_data.height * image_height)
-                    )
-                    center_x, center_y = (
-                        bounding_box[0] + (bounding_box[2] // 2),
-                        bounding_box[1] + (bounding_box[3] // 2)
-                    )
-                    detected_face : FaceDetection = FaceDetection(index, bounding_box, detection.score, (center_x, center_y))
+                    x = int(bounding_box_data.xmin * image_width)
+                    y = int((bounding_box_data.ymin * image_height) - 30)
+                    w = int(bounding_box_data.width * image_width)
+                    h = int(bounding_box_data.height * image_height)
+
+                    top_left = (x, y)
+                    bottom_right = (x + w, y + h)
+
+                    detected_face : FaceDetection = FaceDetection(index, top_left, bottom_right, detection.score)
                     face_detections.append(detected_face)
                     if draw:
-                        image = cv.rectangle(image, bounding_box, (255, 0, 255), 2)
+                        image = detected_face.box.draw(image)
 
                         cv.putText(
                             image,
                             f'{int(detection.score[0] * 100)}%',
-                            (bounding_box[0], bounding_box[1] - 20),
+                            (x, y - 20),
                             cv.FONT_HERSHEY_PLAIN,
                             2,
                             (255, 0, 255),
@@ -109,23 +107,23 @@ def main():
         # Detect faces in the image
         # img: Updated image
         # faces: List of bounding boxes around detected faces
-        img, faces = detector.find_faces(img, draw=False)
+        img, faces = detector.find_faces(img, draw=True)
 
         # Check if any face is detected
         if faces:
             # Loop through each bounding box
-            for bounding_box in faces:
-                # bounding_box contains 'id', 'bounding_box', 'score', 'center'
+            for face in faces:
+                # face contains 'id', 'face', 'score', 'center'
 
                 # ---- Get Data  ---- #
-                center = bounding_box.center
-                x, y, w, h = bounding_box.bounding_box
-                score = int(bounding_box.score[0] * 100)
+                center = face.box.center
+                x, y, w, h = face.box.box
+                score = int(face.score[0] * 100)
 
                 # ---- Draw Data  ---- #
                 cv.circle(img, center, 5, (255, 0, 255), cv.FILLED)
                 media_pumpkin.putTextRect(img, f'{score}%', (x, y - 10))
-                media_pumpkin.cornerRect(img, (x, y, w, h))
+                # media_pumpkin.cornerRect(img, (x, y, w, h))
 
         # Display the image in a window named 'Image'
         cv.imshow("Image", img)

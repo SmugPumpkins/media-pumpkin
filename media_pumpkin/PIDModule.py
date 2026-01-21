@@ -58,7 +58,7 @@ def main():
         img = cv.flip(img, 1)
         img, faces = detector.find_faces(img)
         if faces:
-            x, y, w, h = faces[0].bounding_box
+            x, y, w, h = faces[0].box
             center_x, center_y = faces[0].center
             x_value = int(x_pid.update(center_x))
             y_value = int(y_pid.update(center_y))

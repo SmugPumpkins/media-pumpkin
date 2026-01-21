@@ -637,7 +637,7 @@ while True:
 
     # Find the landmarks, bounding box, and center of the body in the frame
     # Set draw=True to draw the landmarks and bounding box on the image
-    lmList, bboxInfo = detector.findPosition(img, draw=True, bboxWithHands=False)
+    lmList, bboxInfo = detector.find_position(img, draw=True, bounding_box_with_hands=False)
 
     # Check if any body landmarks are detected
     if lmList:
